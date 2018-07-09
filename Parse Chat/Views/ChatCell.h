@@ -11,5 +11,6 @@
 @interface ChatCell : UITableViewCell
 
 @property (weak, nonatomic) IBOutlet UILabel *messageText;
+@property (weak, nonatomic) IBOutlet UILabel *usernameText;
 
 @end

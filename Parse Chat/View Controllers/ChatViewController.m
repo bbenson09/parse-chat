@@ -41,6 +41,7 @@
     
     // Use the name of your outlet to get the text the user typed
     chatMessage[@"text"] = self.chatMessageField.text;
+    chatMessage[@"user"] = PFUser.currentUser;
     
     [chatMessage saveInBackgroundWithBlock:^(BOOL succeeded, NSError * error) {
         if (succeeded) {
@@ -50,6 +51,8 @@
         }
     }];
     
+    self.chatMessageField.text = @"";
+    
 }
 
 - (void)onTimer {
@@ -58,11 +61,12 @@
     // construct query
     PFQuery *query = [PFQuery queryWithClassName:@"Message_fbu2018"];
     
+    [query orderByDescending:@"createdAt"];
+    [query includeKey:@"user"];
+    
     // fetch data asynchronously
     [query findObjectsInBackgroundWithBlock:^(NSArray *posts, NSError *error) {
         if (posts != nil) {
-            
-            [query orderByDescending:@"createdAt"];
             
             self.messages = posts;
             
@@ -88,8 +92,18 @@
     
     ChatCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ChatCell" forIndexPath:indexPath];
     
+    
     PFObject *currentMessage = self.messages[indexPath.row];
     cell.messageText.text = currentMessage[@"text"];
+    
+    PFUser *user = currentMessage[@"user"];
+    if (user != nil) {
+        // User found! update username label with username
+        cell.usernameText.text = user.username;
+    } else {
+        // No user found, set default username
+        cell.usernameText.text = @"🤖";
+    }
     
     return cell;
     
